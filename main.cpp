@@ -1,58 +1,90 @@
-/* Teensyduino Core Library
- * http://www.pjrc.com/teensy/
- * Copyright (c) 2017 PJRC.COM, LLC.
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * 1. The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * 2. If the Software is incorporated into a build system that allows
- * selection among a list of target devices, then similar target
- * devices manufactured by PJRC.COM must be included in the list of
- * target devices and selectable in the same manner.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
- * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
- * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+#include <Bounce.h>
+#include <usb_dev.h>
+#include <usb_keyboard.h>
+#include <core_pins.h>
 
-#include "WProgram.h"
+int main() {
+  Bounce rotaryA = Bounce(23, 5);
+  Bounce rotaryB = Bounce(22, 5);
+  Bounce pushButton = Bounce(21, 5);
+  Bounce button1 = Bounce(20, 5);
+  Bounce button2 = Bounce(11, 5);
+  Bounce button3 = Bounce(3, 5);
+  Bounce button4 = Bounce(0, 5);
 
-extern "C" int main(void)
-{
-#ifdef USING_MAKEFILE
+  pinMode(23, INPUT_PULLUP); // A
+  pinMode(22, INPUT_PULLUP); // B
+  pinMode(21, INPUT_PULLUP); // Z
+  pinMode(20, INPUT_PULLUP); // 1
+  pinMode(11, INPUT_PULLUP); // 2
+  pinMode(3, INPUT_PULLUP); // 3
+  pinMode(0, INPUT_PULLUP); // 4
 
-	// To use Teensy 3.0 without Arduino, simply put your code here.
-	// For example:
+  for(;;) {
+    rotaryA.update();
+    rotaryB.update();
+    pushButton.update();
+    button1.update();
+    button2.update();
+    button3.update();
+    button4.update();
+    
+    if (rotaryA.fallingEdge()) {
+      if (rotaryB.read()) {
+        Keyboard.press(KEY_MEDIA_VOLUME_INC);
+        Keyboard.release(KEY_MEDIA_VOLUME_INC);
+      } else {
+        Keyboard.press(KEY_MEDIA_VOLUME_DEC);
+        Keyboard.release(KEY_MEDIA_VOLUME_DEC);      
+      }
+    }
 
-	pinMode(13, OUTPUT);
-	while (1) {
-		digitalWriteFast(13, HIGH);
-		delay(50);
-		digitalWriteFast(13, LOW);
-		delay(50);
-	}
+    if (pushButton.fallingEdge()) {
+      Keyboard.press(KEY_LEFT_GUI);
+      delay(100);
+      Keyboard.write('h');
+      Keyboard.release(KEY_LEFT_GUI);
+    }
+    
+    if (button1.fallingEdge()) {
+      Keyboard.press(KEY_MEDIA_PLAY_PAUSE);
+      Keyboard.release(KEY_MEDIA_PLAY_PAUSE);
+    }
 
+    if (button2.fallingEdge()) {
+      Keyboard.press(KEY_LEFT_GUI);
+      delay(100);
+      Keyboard.write('h');
+      Keyboard.release(KEY_LEFT_GUI);    
+      delay(100);
+      Keyboard.press(KEY_LEFT_GUI);
+      delay(100);
+      Keyboard.write(' ');
+      Keyboard.release(KEY_LEFT_GUI);
+      delay(100);
+      Keyboard.write('s');
+      delay(100);
+      Keyboard.write('p');
+      delay(100);
+      Keyboard.write('o');
+      delay(100);
+      Keyboard.write('t');
+      delay(100);
+      Keyboard.write('i');
+      delay(100);
+      Keyboard.write('f');    
+      delay(100);
+      Keyboard.println('y');
+    }
+    
+    if (button3.fallingEdge()) {
+      Keyboard.press(KEY_MEDIA_PREV_TRACK);
+      Keyboard.release(KEY_MEDIA_PREV_TRACK);
+    }
 
-#else
-	// Arduino's main() function just calls setup() and loop()....
-	setup();
-	while (1) {
-		loop();
-		yield();
-	}
-#endif
+    if (button4.fallingEdge()) {
+      Keyboard.press(KEY_MEDIA_NEXT_TRACK);
+      Keyboard.release(KEY_MEDIA_NEXT_TRACK);
+    }
+  }
 }
-
